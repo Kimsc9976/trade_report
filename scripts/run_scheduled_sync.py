@@ -21,15 +21,8 @@ POLL_INTERVAL_SEC = 30
 
 def sync_command() -> list[str]:
     if sys.platform == "win32":
-        ps1 = REPO_ROOT / "scripts" / "sync-to-github.ps1"
-        return [
-            "powershell",
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            str(ps1),
-        ]
+        bat = REPO_ROOT / "scripts" / "sync-to-github.bat"
+        return ["cmd", "/c", str(bat)]
     sh = REPO_ROOT / "scripts" / "sync-to-github.sh"
     return [str(sh)]
 

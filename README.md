@@ -11,7 +11,7 @@ trade_report/
 ├── daily-report/              # 일간 리포트 (마크다운, 이미지 등)
 ├── journal/                   # 일지 (날짜별 마크다운 등)
 ├── scripts/
-│   ├── sync-to-github.ps1     # Git add / commit / push (Windows)
+│   ├── sync-to-github.bat     # Git add / commit / push (Windows bat)
 │   ├── run_scheduled_sync.py  # 스케줄러 (12:00, 16:00, 20:00)
 │   └── start-scheduler.bat    # 스케줄러 실행
 ├── requirements.txt
@@ -90,18 +90,10 @@ python -m venv .venv
 .\.venv\Scripts\pip install -r requirements.txt
 ```
 
-### 4. PowerShell 스크립트 실행 허용 (최초 1회)
+### 4. (선택) 최초 수동 push
 
-현재 사용자에게만 적용 (관리자 PowerShell):
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### 5. (선택) 최초 수동 push
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
+```cmd
+scripts\sync-to-github.bat
 ```
 
 `daily-report/`, `journal/`에 변경이 없으면 아무 작업도 하지 않고 종료합니다.
@@ -110,7 +102,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
 
 ## 스케줄러 실행
 
-매일 12:00 · 16:00 · 20:00에 `sync-to-github.ps1`을 호출합니다. 창을 닫으면 스케줄러가 종료됩니다.
+매일 12:00 · 16:00 · 20:00에 `sync-to-github.bat`를 호출합니다. 창을 닫으면 스케줄러가 종료됩니다.
 
 ### 포그라운드 (테스트·확인용)
 
@@ -137,8 +129,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
 
 ### 수동 동기화 (즉시 1회)
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
+```cmd
+scripts\sync-to-github.bat
 ```
 
 ---
@@ -161,11 +153,11 @@ SYNC_TIMES = ("12:00", "16:00", "20:00")
 |------|--------|------|
 | `GIT_BRANCH` | 현재 체크아웃 브랜치 | push 대상 브랜치 |
 
-**PowerShell** 예:
+**명령 프롬프트** 예:
 
-```powershell
-$env:GIT_BRANCH = "main"
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
+```cmd
+set GIT_BRANCH=main
+scripts\sync-to-github.bat
 ```
 
 ---
@@ -175,7 +167,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-to-github.ps1
 | 증상 | 확인 사항 |
 |------|-----------|
 | `Authentication failed` | `gh auth login` 또는 PAT·Windows 자격 증명 관리자 확인 |
-| `running scripts is disabled` | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` 실행 |
 | `rejected` / non-fast-forward | 다른 PC에서 push 여부 확인 후 `git pull --rebase` 후 재시도 |
 | 스케줄러가 안 돌아감 | 작업 스케줄러 실행 기록, `logs\scheduler.log` 확인 |
 | `ModuleNotFoundError: schedule` | `.venv` 생성 및 `pip install -r requirements.txt` |
