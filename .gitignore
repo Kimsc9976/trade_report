@@ -1,0 +1,3 @@
+.venv/
+logs/
+.sync-to-github.lock
