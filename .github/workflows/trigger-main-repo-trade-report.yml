@@ -1,0 +1,56 @@
+# 이 파일은 trade_report 레포지토리에 배치합니다.
+#
+# trade_report push → Kimsc9976.github.io 의 sync-trade-daily-report.yml
+# 메인 서브모듈: modules/trade_report
+#
+# ⚠️ Algorithm 서브모듈용 trigger-main-repo.yml 과 별개입니다.
+#    event-type: trade-report-updated (submodule-updated 아님)
+#
+# paths 트리거:
+#   daily-report/** — 일간 레포트 (메인 sideproject/trade/daily-report/)
+#   journal/**      — 매매일지 (메인 sideproject/trade/journal/, 차트 PNG)
+#                     메인 쪽 sync_trade_journal.rb 연동 준비됨. trade_report 쪽
+#                     journal 형식·콘텐츠는 추후 정리 예정.
+#
+# 설정: Kimsc9976.github.io/SETUP_TRADE_REPORT_SYNC.md
+# 시크릿: MAIN_REPO_TOKEN (classic PAT, repo scope)
+
+name: Trigger Main Repository trade sync
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'daily-report/**'
+      - 'journal/**'
+  workflow_dispatch:
+
+concurrency:
+  group: trigger-trade-report-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger main repository workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.MAIN_REPO_TOKEN }}
+          repository: Kimsc9976/Kimsc9976.github.io
+          event-type: trade-report-updated
+          client-payload: |
+            {
+              "submodule": "trade_report",
+              "submodule_path": "modules/trade_report",
+              "source": "trade_report",
+              "commit": "${{ github.sha }}",
+              "ref": "${{ github.ref }}",
+              "paths": {
+                "daily_report": "daily-report",
+                "journal": "journal"
+              }
+            }
